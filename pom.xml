@@ -6,10 +6,9 @@
     <groupId>com.xianglei</groupId>
     <artifactId>statistics_service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <packaging>war</packaging>
+    <packaging>jar</packaging>
 
     <name>statistics_service</name>
-    <description>Demo project for Spring Boot</description>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
