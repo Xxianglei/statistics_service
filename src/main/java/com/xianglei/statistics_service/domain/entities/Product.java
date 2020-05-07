@@ -1,4 +1,6 @@
-package com.xianglei.statistics_service.domain;
+package com.xianglei.statistics_service.domain.entities;
+
+import com.baomidou.mybatisplus.annotation.TableName;
 
 import java.io.Serializable;
 

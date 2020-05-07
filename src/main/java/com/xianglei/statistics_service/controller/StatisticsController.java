@@ -1,6 +1,6 @@
 package com.xianglei.statistics_service.controller;
 
-import com.xianglei.statistics_service.service.ProductService;
+import com.xianglei.statistics_service.service.StatisticsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -8,11 +8,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/v1/product")
-public class ProductController {
+public class StatisticsController {
 
 
     @Autowired
-    private ProductService productService;
+    private StatisticsService statisticsService;
 
     /**
      * 获取所有商品列表
@@ -20,7 +20,7 @@ public class ProductController {
      */
     @RequestMapping("list")
     public Object list(){
-        return productService.listProduct();
+        return statisticsService.listProduct();
     }
 
 
@@ -31,7 +31,7 @@ public class ProductController {
      */
     @RequestMapping("find")
     public Object findById(@RequestParam("id") int id){
-        return productService.findById(id);
+        return statisticsService.findById(id);
     }
 
 

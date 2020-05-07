@@ -1,10 +1,10 @@
 package com.xianglei.statistics_service.service;
 
-import com.xianglei.statistics_service.domain.Product;
+import com.xianglei.statistics_service.domain.entities.Product;
 
 import java.util.List;
 
-public interface ProductService {
+public interface StatisticsService {
 
     List<Product> listProduct();
 

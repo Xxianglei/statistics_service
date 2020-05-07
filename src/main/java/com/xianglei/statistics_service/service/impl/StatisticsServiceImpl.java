@@ -1,13 +1,13 @@
 package com.xianglei.statistics_service.service.impl;
 
-import com.xianglei.statistics_service.domain.Product;
-import com.xianglei.statistics_service.service.ProductService;
+import com.xianglei.statistics_service.domain.entities.Product;
+import com.xianglei.statistics_service.service.StatisticsService;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
 @Service
-public class ProductServiceImpl implements ProductService {
+public class StatisticsServiceImpl implements StatisticsService {
 
     private static final Map<Integer,Product> daoMap = new HashMap<>();
 
