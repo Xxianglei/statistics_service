@@ -39,7 +39,7 @@ public class StatisticsServiceImpl implements StatisticsService {
             // 会员数
             int vipUser = 0;
             for (BsUser bsUser : bsUsers) {
-                if (bsUser.getVip() == "0") {
+                if ("0".equals(bsUser.getVip())) {
                     vipUser++;
                 }
             }
