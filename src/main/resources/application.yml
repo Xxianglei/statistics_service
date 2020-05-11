@@ -44,3 +44,11 @@ logging:
 
 mybatis:
   type-aliases-package: com.xianglei.statistics_service.domain
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: ALWAYS
