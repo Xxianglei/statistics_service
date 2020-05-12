@@ -23,4 +23,7 @@ public interface OrderMapper extends BaseMapper<BsOrder> {
 
     @Select(" SELECT COUNT(1) nums,b.`PARK_NAME` parkName FROM BS_ORDER a INNER JOIN BS_PARK  b ON a.`PARK_ID`=b.`FLOW_ID` GROUP BY a.`PARK_ID` ORDER BY nums")
     List<Park> findParkList();
+
+    @Select(" SELECT * FROM BS_ORDER  ORDER BY CREATE_TIME DESC")
+    List<BsOrder> findOrderByDesc();
 }

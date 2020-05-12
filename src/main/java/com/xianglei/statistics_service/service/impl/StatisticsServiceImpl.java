@@ -1,5 +1,6 @@
 package com.xianglei.statistics_service.service.impl;
 
+import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.xianglei.statistics_service.common.Tools;
@@ -14,12 +15,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.util.function.Tuple4;
 
+import javax.smartcardio.TerminalFactory;
 import java.util.*;
 
 @Service
 public class StatisticsServiceImpl implements StatisticsService {
     static final String[] times = {"00", "01", "02", "03", "04", "05", "06", "07", "08", "09"
-            , "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24"};
+            , "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23"};
     private Logger logger = LoggerFactory.getLogger(StatisticsServiceImpl.class);
     @Autowired
     UserMapper userMapper;
@@ -162,31 +164,64 @@ public class StatisticsServiceImpl implements StatisticsService {
     @Override
     public List<Last10DayOrder> getLast10DayOrderNums() {
         List<Last10DayOrder> list = new ArrayList<>();
-        // 获取所有订单 按照时间倒叙
-        List<BsOrder> bsOrders = orderMapper.selectList(new QueryWrapper<BsOrder>().orderByDesc("CREATE_TIME"));
-        int size = bsOrders.size();
+        // 获取所有订单 按照时间倒叙 相同日子的放在临位
+        List<BsOrder> orderByDesc = orderMapper.findOrderByDesc();
+        LinkedHashMap<String, BsOrder> stringBsOrderLinkedHashMap = new LinkedHashMap<>();
+        for (BsOrder bsOrder : orderByDesc) {
+            String firstTime = DateUtil.format(bsOrder.getCreateTime(), "yyyy-MM-dd");
+            if (stringBsOrderLinkedHashMap.isEmpty()) {
+                stringBsOrderLinkedHashMap.put(firstTime, bsOrder);
+            } else {
+                if (!stringBsOrderLinkedHashMap.containsKey(firstTime)) {
+                    stringBsOrderLinkedHashMap.put(firstTime, bsOrder);
+                }
+            }
+        }
+        // 分组后数据容器
+        List<ArrayList<BsOrder>> orderDayGroup = new ArrayList<>(16);
+        // 获取到最近的日期
+        Set<Map.Entry<String, BsOrder>> entries = stringBsOrderLinkedHashMap.entrySet();
+        // 分配每个日期订单
+        ArrayList<BsOrder> dayGroup = null;
+        for (Map.Entry<String, BsOrder> entry : entries) {
+            dayGroup = new ArrayList<>();
+            String key = entry.getKey();
+            for (int j = 0; j < orderByDesc.size(); j++) {
+                String firstTime = DateUtil.format(orderByDesc.get(j).getCreateTime(), "yyyy-MM-dd");
+                if (key.equalsIgnoreCase(firstTime)) {
+                    dayGroup.add(orderByDesc.get(j));
+                }
+            }
+            orderDayGroup.add(dayGroup);
+        }
+        logger.info("最近十天使用情况：{}", Arrays.toString(orderDayGroup.toArray()));
+        // 只取出10条
+        int size = orderDayGroup.size();
         if (size > 10) {
-            bsOrders.subList(0, 10);
+            orderDayGroup = orderDayGroup.subList(0, 10);
         } else {
             // 补充
             for (int i = 0; i < 10 - size; i++) {
-                bsOrders.add(new BsOrder());
+                orderDayGroup.add(new ArrayList<>());
             }
         }
         Last10DayOrder last10DayOrder = null;
         int nan = 0;
         int nv = 0;
         int sum = 0;
-        for (BsOrder bsOrder : bsOrders) {
-            last10DayOrder = new Last10DayOrder();
-            String userId = bsOrder.getUserId();
-            BsUser bsUser = userMapper.selectOne(new QueryWrapper<BsUser>().eq("FLOW_ID", userId));
-            if (Tools.isNotNull(bsUser)) {
-                String sexy = bsUser.getSexy();
-                if ("0".equals(sexy)) {
-                    nan++;
-                } else {
-                    nv++;
+        // 统计每天的一个使用情况
+        for (ArrayList<BsOrder> bsOrders : orderDayGroup) {
+            for (BsOrder bsOrder : bsOrders) {
+                last10DayOrder = new Last10DayOrder();
+                String userId = bsOrder.getUserId();
+                BsUser bsUser = userMapper.selectOne(new QueryWrapper<BsUser>().eq("FLOW_ID", userId));
+                if (Tools.isNotNull(bsUser)) {
+                    String sexy = bsUser.getSexy();
+                    if ("0".equals(sexy)) {
+                        nan++;
+                    } else {
+                        nv++;
+                    }
                 }
             }
             sum = nan + nv;
